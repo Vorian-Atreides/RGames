@@ -1,4 +1,5 @@
-from app.models.AData import AData
+from models.AData import AData
+
 
 ##
 ## The Rooms is a model to describe a room in our service

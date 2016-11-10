@@ -1,6 +1,6 @@
 import unittest
 
-from app.models.TcpMessage import TcpMessage
+from models.TcpMessage import TcpMessage
 
 
 class TestTcpMessage(unittest.TestCase):

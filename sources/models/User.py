@@ -1,4 +1,4 @@
-from app.models.AData import AData
+from models.AData import AData
 
 
 ##

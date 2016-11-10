@@ -3,7 +3,7 @@ import unittest
 
 import zmq
 
-from app.Engine import Controller
+from Engine import Controller
 
 
 class TestEngine(unittest.TestCase):

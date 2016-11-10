@@ -2,13 +2,13 @@ from enum import Enum
 
 import zmq
 
-from app import Constants
-from app import Proxy
-from app.AWorker import AWorker
-from app.models.InternalMessage import InternalMessage
-from app.models.Room import Room
-from app.models.User import User
-from app.utils import Serializer
+from models.InternalMessage import InternalMessage
+from models.Room import Room
+from models.User import User
+from utils import Serializer
+from AWorker import AWorker
+import Constants
+import Proxy
 
 WELCOME = "<= Welcome to the XYZ chat server\n" \
           "<= Login Name ?\n"
@@ -22,6 +22,8 @@ END_LIST = "<= end of list.\n"
 USER = "<= * {0}\n"
 Y_USER = "<= * {0} (** this is you)\n"
 QUIT = "<= BYE\n"
+ROOM_NOT_FOUND = "<= The room: {0} doesn't exist\n"
+ROOM_NOT_JOINED = "<= You haven't joined any room.\n"
 
 
 class Commands(Enum):
@@ -79,84 +81,118 @@ class Controller(AWorker):
         ]
         return ''.join(messages)
 
+    @staticmethod
+    def internal_create(internal_message):
+        return InternalMessage(internal_message.get_identity(), Proxy.Commands.send.name, WELCOME)
+
+    @staticmethod
+    def internal_configure(internal_message, users):
+        name = internal_message.get_arguments()
+        # Compare if the name is taken
+        others = [key for (key, value) in users.items() if value.get_login() == name]
+        succeed = len(others) == 0
+        message = WELCOME_LOGGED.format(name) if succeed else LOGIN_ALREADY_USED
+        return succeed, InternalMessage(internal_message.get_identity(), Proxy.Commands.send.name, message)
+
+    @staticmethod
+    def internal_join(internal_message, users, rooms):
+        # Check if the room exist
+        user = users[internal_message.get_identity()]
+        room = internal_message.get_arguments()
+        if len([item for item in rooms if item.get_name() == room]) == 0:
+            err = InternalMessage(internal_message.get_identity(), Proxy.Commands.send.name, ROOM_NOT_FOUND.format(room))
+            return False, [err]
+        # Notify the users in the room
+        message = JOINED.format(room, user.get_login())
+        others = [(key, value) for (key, value) in users.items() if value.get_room() == room]
+        messages = [InternalMessage(key, Proxy.Commands.send.name, message) for (key, value) in others]
+        # Notify the user
+        message = Controller.build_entering_message(room, others, user)
+        messages.append(InternalMessage(internal_message.get_identity(), Proxy.Commands.send.name, message))
+        return True, sorted(messages, key=lambda message: message.get_identity())
+
+    @staticmethod
+    def internal_leave(internal_message, users):
+        user = users[internal_message.get_identity()]
+        if user.get_room() == "":
+            err = InternalMessage(internal_message.get_identity(), Proxy.Commands.send.name, ROOM_NOT_JOINED)
+            return False, [err]
+        # Notify the users in the room
+        message = LEAVING_ROOM.format(user.get_room(), user.get_login())
+        messages = [InternalMessage(key, Proxy.Commands.send.name, message) for (key, value) in users.items()
+                    if value.get_room() == user.get_room() and key != internal_message.get_identity()]
+        message = Y_LEAVING_ROOM.format(user.get_room(), user.get_login())
+        messages.append(InternalMessage(internal_message.get_identity(), Proxy.Commands.send.name, message))
+        return True, messages
+
+    @staticmethod
+    def internal_quit(internal_message, users):
+        quit_messages = [
+            InternalMessage(internal_message.get_identity(), Proxy.Commands.send.name, QUIT),
+            InternalMessage(internal_message.get_identity(), Proxy.Commands.close.name)
+        ]
+
+        succeed, messages = Controller.internal_leave(internal_message, users)
+        if not succeed:
+            messages = []
+        messages.extend(quit_messages)
+        return messages
+
     #########################
     # Commands
     #########################
 
     def create(self, internal_message):
+        internal = self.internal_create(internal_message)
         self.users[internal_message.get_identity()] = User()
-        internal = InternalMessage(internal_message.get_identity(), Proxy.Commands.send.name, WELCOME)
         self.pusher.send_json(internal.to_json())
 
     def configure(self, internal_message):
-        name = internal_message.get_arguments()
-        user = self.users[internal_message.get_identity()]
-        if name == "":
-            print("Invalid name")
-            return
-        # Compare if the name is taken
-        others = [key for (key, value) in self.users.items() if value.get_login() == name]
-        message = LOGIN_ALREADY_USED
-        if len(others) == 0:
-            message = WELCOME_LOGGED.format(name)
-            user.set_login(name)
-        internal = InternalMessage(internal_message.get_identity(), Proxy.Commands.send.name, message)
+        succeed, internal = self.internal_configure(internal_message, self.users)
+        if succeed:
+            user = self.users[internal_message.get_identity()]
+            user.set_login(internal_message.get_arguments())
         self.pusher.send_json(internal.to_json())
 
     def join(self, internal_message):
-        # Check if the room exist
-        user = self.users[internal_message.get_identity()]
-        room = internal_message.get_arguments()
-        if len([item for item in self.rooms if item.get_name() == room]) == 0:
-            print("Room not found")
+        succeed, messages = self.internal_join(internal_message, self.users, self.rooms)
+        if not succeed:
+            self.pusher.send_json(messages[0].to_json())
             return
-        # Notify the users in the room
-        message = JOINED.format(room, user.get_login())
-        others = [(key, value) for (key, value) in self.users.items() if value.get_room() == room]
-        for (key, value) in others:
-            internal = InternalMessage(key, Proxy.Commands.send.name, message)
-            self.pusher.send_json(internal.to_json())
-        # Send a confirmation message
-        message = Controller.build_entering_message(room, others, user)
-        internal = InternalMessage(internal_message.get_identity(), Proxy.Commands.send.name, message)
-        self.pusher.send_json(internal.to_json())
-        # Add the user to the room
-        user.set_room(room)
+        for message in messages:
+            self.pusher.send_json(message.to_json())
+        # Update the user
+        user = self.users[internal_message.get_identity()]
+        user.set_room(internal_message.get_arguments())
 
     def leave(self, internal_message):
-        user = self.users[internal_message.get_identity()]
-        if user.get_room() == "":
-            print("User doesn't belong to any room")
+        succeed, messages = self.internal_leave(internal_message, self.users)
+        if not succeed:
+            self.pusher.send_json(messages[0].to_json())
             return
-        # Notify the users in the room
-        message = LEAVING_ROOM.format(user.get_room(), user.get_login())
-        others = [(key, value) for (key, value) in self.users.items() if value.get_room() == user.get_room() and
-                  key != internal_message.get_identity()]
-        for (key, value) in others:
-            internal = InternalMessage(key, Proxy.Commands.send.name, message)
-            self.pusher.send_json(internal.to_json())
-        # Send a confirmation message
-        message = Y_LEAVING_ROOM.format(user.get_room(), user.get_login())
-        internal = InternalMessage(internal_message.get_identity(), Proxy.Commands.send.name, message)
-        self.pusher.send_json(internal.to_json())
-        # Remove the user from the room
+        for message in messages:
+            self.pusher.send_json(message.to_json())
+        # Update the user
+        user = self.users[internal_message.get_identity()]
         user.set_room("")
 
     def quit(self, internal_message):
-        # Leave the room if the user belong to one
-        self.leave(internal_message)
-        # Update the list of users
+        # Leave the room if the user belongs to one
+        messages = self.internal_quit(internal_message, self.users)
+        for message in messages:
+            self.pusher.send_json(message.to_json())
+        # Update the user
         self.users.pop(internal_message.get_identity())
-        # Say goodbye
-        quit = InternalMessage(internal_message.get_identity(), Proxy.Commands.send.name, QUIT)
-        self.pusher.send_json(quit.to_json())
-        # Close the socket
-        close = InternalMessage(internal_message.get_identity(), Proxy.Commands.close.name)
-        self.pusher.send_json(close.to_json())
 
     def hard_quit(self, internal_message):
-        # Clean the users
-        self.leave(internal_message)
+        # Leave the room if the user joined one
+        succeed, messages = self.internal_leave(internal_message, self.users)
+        if not succeed:
+            messages = []
+        # Notify the user from the room if the user joined one
+        for message in messages:
+            self.pusher.send_json(message.to_json())
+        self.users.pop(internal_message.get_identity())
 
     #########################
     # AWorker

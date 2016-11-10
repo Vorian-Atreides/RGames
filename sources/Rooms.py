@@ -2,13 +2,13 @@ from enum import Enum
 
 import zmq
 
-from app import Constants
-from app import Proxy
-from app.AWorker import AWorker
-from app.models.InternalMessage import InternalMessage
-from app.models.Room import Room
-from app.models.User import User
-from app.utils import Serializer
+from models.InternalMessage import InternalMessage
+from models.Room import Room
+from models.User import User
+from utils import Serializer
+from AWorker import AWorker
+import Constants
+import Proxy
 
 ACTIVE_ROOMS = "<= Active rooms are:\n"
 END_LIST = "<= end of list.\n"
@@ -84,7 +84,7 @@ class Controller(AWorker):
         others = [room for room in rooms if room.get_name() == name]
         if len(others) > 0:
             return False, InternalMessage(internal_message.get_identity(), Proxy.Commands.send.name,
-                                   ERROR_ROOM_EXIST.format(name))
+                                          ERROR_ROOM_EXIST.format(name))
         return True, InternalMessage(internal_message.get_identity(), Proxy.Commands.send.name, CREATED.format(name))
 
     #########################

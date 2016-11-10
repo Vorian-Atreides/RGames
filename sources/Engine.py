@@ -2,16 +2,16 @@ import re
 
 import zmq
 
-from app import Chat
-from app import Constants
-from app import Proxy
-from app import Rooms
-from app import Users
-from app.models.InternalMessage import InternalMessage
-from app.models.TcpMessage import TcpMessage
-from app.models.User import User
-from app.utils import Serializer
-from app.utils.NetworkConfiguration import NetworkConfiguration
+from models.InternalMessage import InternalMessage
+from models.TcpMessage import TcpMessage
+from models.User import User
+from utils import Serializer
+from utils.NetworkConfiguration import NetworkConfiguration
+import Rooms
+import Chat
+import Constants
+import Proxy
+import Users
 
 UNKNOWN_COMMAND = "<= Unknown command: {0}, you should use /help\n"
 HELP_MESSAGE = "<= Commands: /rooms, /join, /create, /leave, /quit, /help\n"

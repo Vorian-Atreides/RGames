@@ -1,4 +1,4 @@
-from app.models.AMessage import AMessage
+from models.AMessage import AMessage
 
 
 class TcpMessage(AMessage):

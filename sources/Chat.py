@@ -2,12 +2,12 @@ from enum import Enum
 
 import zmq
 
-from app import Constants
-from app import Proxy
-from app.AWorker import AWorker
-from app.models.InternalMessage import InternalMessage
-from app.models.User import User
-from app.utils import Serializer
+from models.InternalMessage import InternalMessage
+from models.User import User
+from utils import Serializer
+from AWorker import AWorker
+import Constants
+import Proxy
 
 TO_SEND = "<= {0}: {1}\n"
 

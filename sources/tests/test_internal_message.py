@@ -1,6 +1,6 @@
 import unittest
 
-from app.models.InternalMessage import InternalMessage
+from models.InternalMessage import InternalMessage
 
 
 class TestInternalMessage(unittest.TestCase):

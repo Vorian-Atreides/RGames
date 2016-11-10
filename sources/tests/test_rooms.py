@@ -2,10 +2,10 @@ import unittest
 
 import zmq
 
-from app import Proxy
-from app import Rooms
-from app.models.Room import Room
-from app.models.InternalMessage import InternalMessage
+from models.InternalMessage import InternalMessage
+from models.Room import Room
+import Rooms
+import Proxy
 
 
 class TestRooms(unittest.TestCase):
@@ -16,8 +16,8 @@ class TestRooms(unittest.TestCase):
     def test_build_list_rooms(self):
         rooms = [Room("a", 10), Room("b", 2), Room("c", 1)]
         list = self.controller.build_list_rooms(rooms)
-        expected_text = Rooms.ACTIVE_ROOMS +\
-                        Rooms.ROOM.format("a", 10) + Rooms.ROOM.format("b", 2) + Rooms.ROOM.format("c", 1) +\
+        expected_text = Rooms.ACTIVE_ROOMS + \
+                        Rooms.ROOM.format("a", 10) + Rooms.ROOM.format("b", 2) + Rooms.ROOM.format("c", 1) + \
                         Rooms.END_LIST
         self.assertEqual(list, expected_text)
 

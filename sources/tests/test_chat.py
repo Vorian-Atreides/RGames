@@ -2,10 +2,10 @@ import unittest
 
 import zmq
 
-from app import Proxy
-from app import Chat
-from app.models.User import User
-from app.models.InternalMessage import InternalMessage
+from models.InternalMessage import InternalMessage
+from models.User import User
+import Chat
+import Proxy
 
 
 class TestChat(unittest.TestCase):
@@ -30,7 +30,6 @@ class TestChat(unittest.TestCase):
             self.assertEqual(responses[i].get_identity(), expected_responses[i].get_identity())
             self.assertEqual(responses[i].get_command(), expected_responses[i].get_command())
             self.assertEqual(responses[i].get_arguments(), expected_responses[i].get_arguments())
-
 
     def test_internal_broadcast_with_invalid_user(self):
         users = {

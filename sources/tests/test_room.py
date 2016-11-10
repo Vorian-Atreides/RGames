@@ -1,6 +1,6 @@
 import unittest
 
-from app.models.Room import Room
+from models.Room import Room
 
 
 class TestUser(unittest.TestCase):
