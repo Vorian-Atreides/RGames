@@ -77,7 +77,7 @@ class Controller():
         self.sub.setsockopt_string(zmq.SUBSCRIBE, Constants.InternalTopics.rooms.name)
 
     #########################
-    # Private
+    # Commands
     #########################
 
     def create_user(self, identity, arguments):
@@ -124,6 +124,10 @@ class Controller():
         print("Broadcast")
         message = InternalMessage(identity, Chat.Commands.broadcast.name, arguments[0])
         self.chat_pusher.send_json(message.to_json())
+
+    #########################
+    # Private
+    #########################
 
     def from_client(self, json):
         # Check if the message is valid

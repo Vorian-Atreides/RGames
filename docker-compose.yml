@@ -1,0 +1,75 @@
+version: '2'
+
+services:
+    monolithic:
+        build: .
+        ports:
+            - "9399:8080"
+        volumes:
+            - ./sources:/home/app/sources
+            - ./resources:/home/app/resources
+        command: python3 -u /home/app/sources/main.py
+        environment:
+            - network_file=local.cfg
+
+    cluster:
+        build: .
+        hostname: cluster
+        networks:
+            - my_cloud
+        ports:
+            - "9399:8080"
+        volumes:
+            - ./sources:/home/app/sources
+            - ./resources:/home/app/resources
+        command: python3 -u /home/app/sources/Proxy.py
+        environment:
+            - network_file=cluster.cfg
+
+    engine:
+        build: .
+        hostname: engine
+        networks:
+            - my_cloud
+        volumes:
+            - ./sources:/home/app/sources
+            - ./resources:/home/app/resources
+        command: python3 -u /home/app/sources/Engine.py
+        environment:
+            - network_file=cluster.cfg
+
+    users:
+        build: .
+        networks:
+            - my_cloud
+        volumes:
+            - ./sources:/home/app/sources
+            - ./resources:/home/app/resources
+        command: python3 -u /home/app/sources/Users.py
+        environment:
+            - network_file=cluster.cfg
+
+    rooms:
+        build: .
+        networks:
+            - my_cloud
+        volumes:
+            - ./sources:/home/app/sources
+            - ./resources:/home/app/resources
+        command: python3 -u /home/app/sources/Rooms.py
+        environment:
+            - network_file=cluster.cfg
+
+    chat:
+        build: .
+        networks:
+            - my_cloud
+        volumes:
+            - ./sources:/home/app/sources
+            - ./resources:/home/app/resources
+        command: python3 -u /home/app/sources/Chat.py
+        environment:
+            - network_file=cluster.cfg
+
+networks:
+    my_cloud:

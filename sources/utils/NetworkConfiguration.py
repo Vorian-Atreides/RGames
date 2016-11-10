@@ -1,10 +1,11 @@
 import configparser
+import os
 
 import zmq
 
 
 class NetworkConfiguration():
-    NETWORK_FILE = "./resources/network.cfg"
+    NETWORK_FILE = "./resources/{0}".format(os.environ["network_file"])# "./resources/cluster.cfg"
 
     def __init__(self):
         self.network_config = configparser.ConfigParser()
