@@ -14,7 +14,19 @@ services:
 
     cluster:
         build: .
-        hostname: cluster
+        networks:
+            - my_cloud
+        links:
+            - proxy
+            - engine
+            - users
+            - chat
+            - rooms
+        command: bash -c "while true; do sleep 1; done"
+
+    proxy:
+        build: .
+        hostname: proxy
         networks:
             - my_cloud
         ports:

@@ -16,6 +16,7 @@ import Users
 UNKNOWN_COMMAND = "<= Unknown command: {0}, you should use /help\n"
 HELP_MESSAGE = "<= Commands: /rooms, /join, /create, /leave, /quit, /help\n"
 
+
 ##
 ## The Engine is the backbone of the service,
 ## it dispatch the request coming from the Proxy to a PUSH/PULL for

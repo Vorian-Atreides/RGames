@@ -5,6 +5,7 @@ import zmq
 from models.InternalMessage import InternalMessage
 from utils.NetworkConfiguration import NetworkConfiguration
 
+
 ##
 ## The Worker is an abstract class used to define and configure the routing
 ## with the Engine
