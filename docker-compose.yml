@@ -5,10 +5,6 @@ services:
         build: .
         ports:
             - "9399:8080"
-        volumes:
-            - ./sources:/home/app/sources
-            - ./resources:/home/app/resources
-        command: python3 -u /home/app/sources/main.py
         environment:
             - network_file=local.cfg
 
@@ -31,10 +27,7 @@ services:
             - my_cloud
         ports:
             - "9399:8080"
-        volumes:
-            - ./sources:/home/app/sources
-            - ./resources:/home/app/resources
-        command: python3 -u /home/app/sources/Proxy.py
+        command: python3 -u /usr/src/app/sources/Proxy.py
         environment:
             - network_file=cluster.cfg
 
@@ -43,10 +36,7 @@ services:
         hostname: engine
         networks:
             - my_cloud
-        volumes:
-            - ./sources:/home/app/sources
-            - ./resources:/home/app/resources
-        command: python3 -u /home/app/sources/Engine.py
+        command: python3 -u /usr/src/app/sources/Engine.py
         environment:
             - network_file=cluster.cfg
 
@@ -54,10 +44,7 @@ services:
         build: .
         networks:
             - my_cloud
-        volumes:
-            - ./sources:/home/app/sources
-            - ./resources:/home/app/resources
-        command: python3 -u /home/app/sources/Users.py
+        command: python3 -u /usr/src/app/sources/Users.py
         environment:
             - network_file=cluster.cfg
 
@@ -65,10 +52,7 @@ services:
         build: .
         networks:
             - my_cloud
-        volumes:
-            - ./sources:/home/app/sources
-            - ./resources:/home/app/resources
-        command: python3 -u /home/app/sources/Rooms.py
+        command: python3 -u /usr/src/app/sources/Rooms.py
         environment:
             - network_file=cluster.cfg
 
@@ -76,10 +60,7 @@ services:
         build: .
         networks:
             - my_cloud
-        volumes:
-            - ./sources:/home/app/sources
-            - ./resources:/home/app/resources
-        command: python3 -u /home/app/sources/Chat.py
+        command: python3 -u /usr/src/app/sources/Chat.py
         environment:
             - network_file=cluster.cfg
 

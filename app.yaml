@@ -1,0 +1,15 @@
+runtime: custom
+vm: true
+threadsafe: true
+
+network:
+  forwarded_ports:
+    - 9399:8080
+
+resources:
+  cpu: 0.5
+  memory_gb: 0.3
+  disk_size_gb: 10
+
+manual_scaling:
+  instances: 1
