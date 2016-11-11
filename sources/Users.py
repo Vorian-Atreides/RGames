@@ -10,20 +10,22 @@ from AWorker import AWorker
 import Constants
 import Proxy
 
-WELCOME = "<= Welcome to the XYZ chat server\n" \
-          "<= Login Name ?\n"
-LOGIN_ALREADY_USED = "<= Sorry, name taken.\n"
-WELCOME_LOGGED = "<= Welcome {0}!\n"
-ENTERING_ROOM = "<= entering room: {0}\n"
-JOINED = "<= * new user joined {0}: {1}\n"
-LEAVING_ROOM = "<= * user has left {0}: {1}\n"
-Y_LEAVING_ROOM = "<= * user has left {0}: {1} (** this is you)\n"
-END_LIST = "<= end of list.\n"
-USER = "<= * {0}\n"
-Y_USER = "<= * {0} (** this is you)\n"
-QUIT = "<= BYE\n"
-ROOM_NOT_FOUND = "<= The room: {0} doesn't exist\n"
-ROOM_NOT_JOINED = "<= You haven't joined any room.\n"
+
+class Text():
+    WELCOME = "<= Welcome to the XYZ chat server\r\n" \
+              "<= Login Name ?\r\n"
+    LOGIN_ALREADY_USED = "<= Sorry, name taken.\r\n"
+    WELCOME_LOGGED = "<= Welcome {0}!\r\n"
+    ENTERING_ROOM = "<= entering room: {0}\r\n"
+    JOINED = "<= * new user joined {0}: {1}!\r\n"
+    LEAVING_ROOM = "<= * user has left {0}: {1}\r\n"
+    Y_LEAVING_ROOM = "<= * user has left {0}: {1} (** this is you)\r\n"
+    END_LIST = "<= end of list.\r\n"
+    USER = "<= * {0}\r\n"
+    Y_USER = "<= * {0} (** this is you)\r\n"
+    QUIT = "<= BYE\r\n"
+    ROOM_NOT_FOUND = "<= The room: {0} doesn't exist\r\n"
+    ROOM_NOT_JOINED = "<= You haven't joined any room.\r\n"
 
 
 class Commands(Enum):
@@ -71,19 +73,19 @@ class Controller(AWorker):
 
     @staticmethod
     def build_entering_message(room, others, user):
-        user_messages = [USER.format(value.get_login()) for (key, value) in others]
-        user_messages.append(Y_USER.format(user.get_login()))
+        user_messages = [Text.USER.format(value.get_login()) for (key, value) in others]
+        user_messages.append(Text.Y_USER.format(user.get_login()))
 
         messages = [
-            ENTERING_ROOM.format(room),
+            Text.ENTERING_ROOM.format(room),
             ''.join(sorted(user_messages)),
-            END_LIST
+            Text.END_LIST
         ]
         return ''.join(messages)
 
     @staticmethod
     def internal_create(internal_message):
-        return InternalMessage(internal_message.get_identity(), Proxy.Commands.send.name, WELCOME)
+        return InternalMessage(internal_message.get_identity(), Proxy.Commands.send.name, Text.WELCOME)
 
     @staticmethod
     def internal_configure(internal_message, users):
@@ -91,7 +93,7 @@ class Controller(AWorker):
         # Compare if the name is taken
         others = [key for (key, value) in users.items() if value.get_login() == name]
         succeed = len(others) == 0
-        message = WELCOME_LOGGED.format(name) if succeed else LOGIN_ALREADY_USED
+        message = Text.WELCOME_LOGGED.format(name) if succeed else Text.LOGIN_ALREADY_USED
         return succeed, InternalMessage(internal_message.get_identity(), Proxy.Commands.send.name, message)
 
     @staticmethod
@@ -100,10 +102,10 @@ class Controller(AWorker):
         user = users[internal_message.get_identity()]
         room = internal_message.get_arguments()
         if len([item for item in rooms if item.get_name() == room]) == 0:
-            err = InternalMessage(internal_message.get_identity(), Proxy.Commands.send.name, ROOM_NOT_FOUND.format(room))
+            err = InternalMessage(internal_message.get_identity(), Proxy.Commands.send.name, Text.ROOM_NOT_FOUND.format(room))
             return False, [err]
         # Notify the users in the room
-        message = JOINED.format(room, user.get_login())
+        message = Text.JOINED.format(room, user.get_login())
         others = [(key, value) for (key, value) in users.items() if value.get_room() == room]
         messages = [InternalMessage(key, Proxy.Commands.send.name, message) for (key, value) in others]
         # Notify the user
@@ -115,20 +117,20 @@ class Controller(AWorker):
     def internal_leave(internal_message, users):
         user = users[internal_message.get_identity()]
         if user.get_room() == "":
-            err = InternalMessage(internal_message.get_identity(), Proxy.Commands.send.name, ROOM_NOT_JOINED)
+            err = InternalMessage(internal_message.get_identity(), Proxy.Commands.send.name, Text.ROOM_NOT_JOINED)
             return False, [err]
         # Notify the users in the room
-        message = LEAVING_ROOM.format(user.get_room(), user.get_login())
+        message = Text.LEAVING_ROOM.format(user.get_room(), user.get_login())
         messages = [InternalMessage(key, Proxy.Commands.send.name, message) for (key, value) in users.items()
                     if value.get_room() == user.get_room() and key != internal_message.get_identity()]
-        message = Y_LEAVING_ROOM.format(user.get_room(), user.get_login())
+        message = Text.Y_LEAVING_ROOM.format(user.get_room(), user.get_login())
         messages.append(InternalMessage(internal_message.get_identity(), Proxy.Commands.send.name, message))
         return True, messages
 
     @staticmethod
     def internal_quit(internal_message, users):
         quit_messages = [
-            InternalMessage(internal_message.get_identity(), Proxy.Commands.send.name, QUIT),
+            InternalMessage(internal_message.get_identity(), Proxy.Commands.send.name, Text.QUIT),
             InternalMessage(internal_message.get_identity(), Proxy.Commands.close.name)
         ]
 

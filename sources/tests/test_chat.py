@@ -22,8 +22,8 @@ class TestChat(unittest.TestCase):
         request = InternalMessage("a", "command", "Hello")
         responses = self.controller.internal_broadcast(request, users)
         expected_responses = [
-            InternalMessage("a", Proxy.Commands.send.name, Chat.TO_SEND.format("user1", "Hello")),
-            InternalMessage("b", Proxy.Commands.send.name, Chat.TO_SEND.format("user1", "Hello"))
+            InternalMessage("a", Proxy.Commands.send.name, Chat.Text.TO_SEND.format("user1", "Hello")),
+            InternalMessage("b", Proxy.Commands.send.name, Chat.Text.TO_SEND.format("user1", "Hello"))
         ]
         self.assertEqual(len(responses), len(expected_responses))
         for i in range(0, len(responses)):

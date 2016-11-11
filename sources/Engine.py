@@ -13,8 +13,9 @@ import Constants
 import Proxy
 import Users
 
-UNKNOWN_COMMAND = "<= Unknown command: {0}, you should use /help\n"
-HELP_MESSAGE = "<= Commands: /rooms, /join, /create, /leave, /quit, /help\n"
+
+class Text():
+    HELP_MESSAGE = "<= Commands: /rooms, /join, /create, /leave, /quit, /help\r\n"
 
 
 ##
@@ -52,15 +53,15 @@ class Controller():
 
     def __init__(self, context):
         self.commands = {
-            "^=> \/join (\w+)\n$": Controller.join_room,
-            "^=> \/leave\n$": Controller.leave_room,
-            "^=> \/quit\n$": Controller.quit,
-            "^=> \/create (\w+)\n$": Controller.create_room,
-            "^=> \/rooms\n$": Controller.list_rooms,
+            "^=> \/join (\w+)(\n|\r\n)$": Controller.join_room,
+            "^=> \/leave(\n|\r\n)$": Controller.leave_room,
+            "^=> \/quit(\n|\r\n)$": Controller.quit,
+            "^=> \/create (\w+)(\n|\r\n)$": Controller.create_room,
+            "^=> \/rooms(\n|\r\n)$": Controller.list_rooms,
             "^$": Controller.brutaly_quit
         }
-        self.configure = ("^=> (\w+)\n$", Controller.configure_user)
-        self.broadcast = ("^=> (.+)\n$", Controller.chat_broadcast)
+        self.configure = ("^=> (\w+)(\n|\r\n)$", Controller.configure_user)
+        self.broadcast = ("^=> (.+)(\n|\r\n)$", Controller.chat_broadcast)
 
         self.users = {}
 
@@ -161,7 +162,7 @@ class Controller():
                 self.broadcast[1](self, message.get_identity(), result.groups())
                 return
         # Send an error if the command isn't recognized
-        internal = InternalMessage(message.get_identity(), Proxy.Commands.send.name, HELP_MESSAGE)
+        internal = InternalMessage(message.get_identity(), Proxy.Commands.send.name, Text.HELP_MESSAGE)
         self.proxy_pusher.send_json(internal.to_json())
 
     def from_broadcast(self, topic, message):

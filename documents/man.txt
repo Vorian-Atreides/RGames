@@ -1,0 +1,38 @@
+There are several ways to run the software, but the easier will be to install Docker.
+
+You should firstly install and Download Docker for Mac at:
+https://www.docker.com/products/docker#/mac
+
+Once docker installed, you should clone the project repository
+Open a terminal and write:
+$ git clone https://github.com/Vorian-Atreides/RGames
+$ cd RGames/
+
+Now you shave three different ways to run the project:
+
+To run a standalone image, with each services running on separated thread
+$ docker-compose up monolithic
+
+To run several images, with each services running on a separated image:
+$ docker-compose up cluster
+
+To run each service independently of the others,
+to let you configure the quantity of instances to run and on which machine:
+$ docker-compose up proxy
+$ docker-compose up engine
+$ docker-compose up users
+$ docker-compose up chat
+$ docker-compose up rooms
+
+For the last solution, be careful to run at least one of each instance to have a working service.
+Moreover, at this moment the project support only one instance for:
+- proxy
+- engine
+- users
+- rooms
+The two Diagrams are there to explain the current architecture and how it should/could be improved.
+
+
+You can also run the unit test with this command:
+$ network_file=local.cfg python3 -m unittest discover sources
+You must be in the project's root directory

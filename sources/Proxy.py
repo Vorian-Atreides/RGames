@@ -51,8 +51,12 @@ class Controller():
         self.router.send_multipart([bytes.fromhex(internal_message.get_identity()), body])
 
     def receive_from_client(self, identity, message):
-        tcp = TcpMessage(identity.hex(), body=message.decode("utf-8"))
-        self.pusher.send_json(tcp.to_json())
+        try:
+            string = message.decode("utf-8")
+            tcp = TcpMessage(identity.hex(), body=string)
+            self.pusher.send_json(tcp.to_json())
+        except UnicodeDecodeError:
+            return
 
     def receive_from_internal(self, json):
         internal = InternalMessage.from_json(json)

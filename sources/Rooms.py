@@ -10,11 +10,13 @@ from AWorker import AWorker
 import Constants
 import Proxy
 
-ACTIVE_ROOMS = "<= Active rooms are:\n"
-END_LIST = "<= end of list.\n"
-ROOM = "<= * {0} ({1})\n"
-CREATED = "<= Room: {0} created\n"
-ERROR_ROOM_EXIST = "<= Room: {0} already exist\n"
+
+class Text():
+    ACTIVE_ROOMS = "<= Active rooms are:\r\n"
+    END_LIST = "<= end of list.\r\n"
+    ROOM = "<= * {0} ({1})\r\n"
+    CREATED = "<= Room: {0} created\r\n"
+    ERROR_ROOM_EXIST = "<= Room: {0} already exist\r\n"
 
 
 class Commands(Enum):
@@ -64,11 +66,11 @@ class Controller(AWorker):
 
     @staticmethod
     def build_list_rooms(rooms):
-        room_messages = [ROOM.format(room.get_name(), room.get_connected_users()) for room in rooms]
+        room_messages = [Text.ROOM.format(room.get_name(), room.get_connected_users()) for room in rooms]
         messages = [
-            ACTIVE_ROOMS,
+            Text.ACTIVE_ROOMS,
             ''.join(sorted(room_messages)),
-            END_LIST
+            Text.END_LIST
         ]
 
         return ''.join(messages)
@@ -84,8 +86,8 @@ class Controller(AWorker):
         others = [room for room in rooms if room.get_name() == name]
         if len(others) > 0:
             return False, InternalMessage(internal_message.get_identity(), Proxy.Commands.send.name,
-                                          ERROR_ROOM_EXIST.format(name))
-        return True, InternalMessage(internal_message.get_identity(), Proxy.Commands.send.name, CREATED.format(name))
+                                          Text.ERROR_ROOM_EXIST.format(name))
+        return True, InternalMessage(internal_message.get_identity(), Proxy.Commands.send.name, Text.CREATED.format(name))
 
     #########################
     # Commands

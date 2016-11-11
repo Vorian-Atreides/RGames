@@ -1,0 +1,17 @@
+I fixed some issues with the document:
+    - <=*gc instead of <= * gc
+    - <= foo: welcome gc_reviewer! => hi there! instead of <= foo: welcome gc_reviewer!
+                                                           => hi there!
+
+I also added some errors messages which weren't specified:
+    - Room not found
+    - Room already exist (new feature)
+    - Help message with wrong commands (Except login phases)
+
+I added a feature to create a room:
+=> /create roomName
+
+It wasn't documented about the cases of exit and what to do when:
+    - User /quit from a room
+    - User brutaly quit from a room
+So I follow a behavior as: /leave then /quit

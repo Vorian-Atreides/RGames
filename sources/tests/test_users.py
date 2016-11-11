@@ -19,12 +19,12 @@ class TestUsers(unittest.TestCase):
         request = InternalMessage("a", "command")
         response = self.controller.internal_create(request)
         self.assertEqual(response.get_identity(), "a")
-        self.assertEqual(response.get_arguments(), Users.WELCOME)
+        self.assertEqual(response.get_arguments(), Users.Text.WELCOME)
 
         request = InternalMessage("b", "command")
         response = self.controller.internal_create(request)
         self.assertEqual(response.get_identity(), "b")
-        self.assertEqual(response.get_arguments(), Users.WELCOME)
+        self.assertEqual(response.get_arguments(), Users.Text.WELCOME)
 
     # Check the user configuration
     def test_internal_configure_succeed(self):
@@ -37,7 +37,7 @@ class TestUsers(unittest.TestCase):
         self.assertTrue(succeed)
         self.assertEqual(response.get_identity(), "c")
         self.assertEqual(response.get_command(), Proxy.Commands.send.name)
-        self.assertEqual(response.get_arguments(), Users.WELCOME_LOGGED.format("user3"))
+        self.assertEqual(response.get_arguments(), Users.Text.WELCOME_LOGGED.format("user3"))
 
     def test_internal_configure_failed(self):
         users = {
@@ -49,7 +49,7 @@ class TestUsers(unittest.TestCase):
         self.assertFalse(succeed)
         self.assertEqual(response.get_identity(), "c")
         self.assertEqual(response.get_command(), Proxy.Commands.send.name)
-        self.assertEqual(response.get_arguments(), Users.LOGIN_ALREADY_USED)
+        self.assertEqual(response.get_arguments(), Users.Text.LOGIN_ALREADY_USED)
 
     # Check /join
     def test_internal_join_succeed(self):
@@ -62,13 +62,13 @@ class TestUsers(unittest.TestCase):
         ]
         request = InternalMessage("c", "command", "room1")
         succeed, messages = self.controller.internal_join(request, users, rooms)
-        message = Users.ENTERING_ROOM.format("room1") + \
-                  Users.USER.format("user1") + Users.USER.format("user2") + Users.Y_USER.format("user3") + \
-                  Users.END_LIST
+        message = Users.Text.ENTERING_ROOM.format("room1") + \
+                  Users.Text.USER.format("user1") + Users.Text.USER.format("user2") + Users.Text.Y_USER.format("user3") + \
+                  Users.Text.END_LIST
 
         expected_responses = [
-            InternalMessage("a", Proxy.Commands.send.name, Users.JOINED.format("room1", "user3")),
-            InternalMessage("b", Proxy.Commands.send.name, Users.JOINED.format("room1", "user3")),
+            InternalMessage("a", Proxy.Commands.send.name, Users.Text.JOINED.format("room1", "user3")),
+            InternalMessage("b", Proxy.Commands.send.name, Users.Text.JOINED.format("room1", "user3")),
             InternalMessage("c", Proxy.Commands.send.name, message)
         ]
         self.assertTrue(succeed)
@@ -91,7 +91,7 @@ class TestUsers(unittest.TestCase):
         self.assertFalse(succeed)
         self.assertEqual(messages[0].get_identity(), "c")
         self.assertEqual(messages[0].get_command(), Proxy.Commands.send.name)
-        self.assertEqual(messages[0].get_arguments(), Users.ROOM_NOT_FOUND.format("room3"))
+        self.assertEqual(messages[0].get_arguments(), Users.Text.ROOM_NOT_FOUND.format("room3"))
 
     # Check /leave
     def test_internal_leave_succeed(self):
@@ -102,8 +102,8 @@ class TestUsers(unittest.TestCase):
         request = InternalMessage("a", "command")
         succeed, messages = self.controller.internal_leave(request, users)
         expected_responses = [
-            InternalMessage("b", Proxy.Commands.send.name, Users.LEAVING_ROOM.format("room1", "user1")),
-            InternalMessage("a", Proxy.Commands.send.name, Users.Y_LEAVING_ROOM.format("room1", "user1"))
+            InternalMessage("b", Proxy.Commands.send.name, Users.Text.LEAVING_ROOM.format("room1", "user1")),
+            InternalMessage("a", Proxy.Commands.send.name, Users.Text.Y_LEAVING_ROOM.format("room1", "user1"))
         ]
         self.assertTrue(succeed)
         self.assertEqual(len(messages), len(expected_responses))
@@ -122,7 +122,7 @@ class TestUsers(unittest.TestCase):
         self.assertFalse(succeed)
         self.assertEqual(messages[0].get_identity(), "c")
         self.assertEqual(messages[0].get_command(), Proxy.Commands.send.name)
-        self.assertEqual(messages[0].get_arguments(), Users.ROOM_NOT_JOINED)
+        self.assertEqual(messages[0].get_arguments(), Users.Text.ROOM_NOT_JOINED)
 
     # Check /quit
     def test_quit_without_room(self):
@@ -133,7 +133,7 @@ class TestUsers(unittest.TestCase):
         request = InternalMessage("c", "command")
         responses = self.controller.internal_quit(request, users)
         expected_responses = [
-            InternalMessage("c", Proxy.Commands.send.name, Users.QUIT),
+            InternalMessage("c", Proxy.Commands.send.name, Users.Text.QUIT),
             InternalMessage("c", Proxy.Commands.close.name)
         ]
         self.assertEqual(len(responses), len(expected_responses))
@@ -150,9 +150,9 @@ class TestUsers(unittest.TestCase):
         request = InternalMessage("a", "command")
         responses = self.controller.internal_quit(request, users)
         expected_responses = [
-            InternalMessage("b", Proxy.Commands.send.name, Users.LEAVING_ROOM.format("room1", "user1")),
-            InternalMessage("a", Proxy.Commands.send.name, Users.Y_LEAVING_ROOM.format("room1", "user1")),
-            InternalMessage("a", Proxy.Commands.send.name, Users.QUIT),
+            InternalMessage("b", Proxy.Commands.send.name, Users.Text.LEAVING_ROOM.format("room1", "user1")),
+            InternalMessage("a", Proxy.Commands.send.name, Users.Text.Y_LEAVING_ROOM.format("room1", "user1")),
+            InternalMessage("a", Proxy.Commands.send.name, Users.Text.QUIT),
             InternalMessage("a", Proxy.Commands.close.name)
         ]
         self.assertEqual(len(responses), len(expected_responses))

@@ -16,23 +16,23 @@ class TestRooms(unittest.TestCase):
     def test_build_list_rooms(self):
         rooms = [Room("a", 10), Room("b", 2), Room("c", 1)]
         list = self.controller.build_list_rooms(rooms)
-        expected_text = Rooms.ACTIVE_ROOMS + \
-                        Rooms.ROOM.format("a", 10) + Rooms.ROOM.format("b", 2) + Rooms.ROOM.format("c", 1) + \
-                        Rooms.END_LIST
+        expected_text = Rooms.Text.ACTIVE_ROOMS + \
+                        Rooms.Text.ROOM.format("a", 10) + Rooms.Text.ROOM.format("b", 2) + Rooms.Text.ROOM.format("c", 1) + \
+                        Rooms.Text.END_LIST
         self.assertEqual(list, expected_text)
 
         rooms = []
         list = self.controller.build_list_rooms(rooms)
-        expected_text = Rooms.ACTIVE_ROOMS + \
-                        Rooms.END_LIST
+        expected_text = Rooms.Text.ACTIVE_ROOMS + \
+                        Rooms.Text.END_LIST
         self.assertEqual(list, expected_text)
 
     def test_internal_get_rooms(self):
         request = InternalMessage("a", "command")
         rooms = [Room("a", 10), Room("b", 2), Room("c", 1)]
-        expected_text = Rooms.ACTIVE_ROOMS + \
-                        Rooms.ROOM.format("a", 10) + Rooms.ROOM.format("b", 2) + Rooms.ROOM.format("c", 1) + \
-                        Rooms.END_LIST
+        expected_text = Rooms.Text.ACTIVE_ROOMS + \
+                        Rooms.Text.ROOM.format("a", 10) + Rooms.Text.ROOM.format("b", 2) + Rooms.Text.ROOM.format("c", 1) + \
+                        Rooms.Text.END_LIST
         response = self.controller.internal_get_rooms(request, rooms)
         self.assertEqual(response.get_identity(), "a")
         self.assertEqual(response.get_command(), Proxy.Commands.send.name)
@@ -40,8 +40,8 @@ class TestRooms(unittest.TestCase):
 
         request = InternalMessage("b", "command")
         rooms = []
-        expected_text = Rooms.ACTIVE_ROOMS + \
-                        Rooms.END_LIST
+        expected_text = Rooms.Text.ACTIVE_ROOMS + \
+                        Rooms.Text.END_LIST
         response = self.controller.internal_get_rooms(request, rooms)
         self.assertEqual(response.get_identity(), "b")
         self.assertEqual(response.get_command(), Proxy.Commands.send.name)
@@ -54,7 +54,7 @@ class TestRooms(unittest.TestCase):
         self.assertEqual(succeed, True)
         self.assertEqual(response.get_identity(), "a")
         self.assertEqual(response.get_command(), Proxy.Commands.send.name)
-        self.assertEqual(response.get_arguments(), Rooms.CREATED.format("d"))
+        self.assertEqual(response.get_arguments(), Rooms.Text.CREATED.format("d"))
 
     def test_internal_created_room_failed(self):
         request = InternalMessage("b", "command", "a")
@@ -63,4 +63,4 @@ class TestRooms(unittest.TestCase):
         self.assertEqual(succeed, False)
         self.assertEqual(response.get_identity(), "b")
         self.assertEqual(response.get_command(), Proxy.Commands.send.name)
-        self.assertEqual(response.get_arguments(), Rooms.ERROR_ROOM_EXIST.format("a"))
+        self.assertEqual(response.get_arguments(), Rooms.Text.ERROR_ROOM_EXIST.format("a"))

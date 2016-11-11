@@ -9,7 +9,9 @@ from AWorker import AWorker
 import Constants
 import Proxy
 
-TO_SEND = "<= {0}: {1}\n"
+
+class Text():
+    TO_SEND = "<= {0}: {1}\r\n"
 
 
 class Commands(Enum):
@@ -50,7 +52,7 @@ class Controller(AWorker):
         # Get the users in the same room
         room_users = sorted([key for (key, value) in users.items() if value.get_room() == user.get_room()])
         # Send the messages
-        to_send = TO_SEND.format(user.get_login(), internal_message.get_arguments())
+        to_send = Text.TO_SEND.format(user.get_login(), internal_message.get_arguments())
         for identity in room_users:
             message = InternalMessage(identity, Proxy.Commands.send.name, to_send)
             messages.append(message)
